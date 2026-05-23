@@ -14,11 +14,10 @@ const links = {
 };
 
 const highlights = [
-  ["Hookah Lounge", "Low-lit sessions, warm tables and a relaxed Patuli crowd."],
   ["Live Music", "Weekend-ready evenings with stage glow and group energy."],
-  ["Cafe Plates", "Continental, Chinese, Italian and comfort food placeholders."],
-  ["Mocktails", "Bright, shareable drinks for birthdays and night-out plans."],
-  ["Group Hangouts", "Tables designed for friends, photos and long conversations."],
+  ["Hookah Lounge", "Low-lit sessions, warm tables and a relaxed Patuli crowd."],
+  ["Premium Dining", "Cafe plates, full-table favourites and a richer evening mood."],
+  ["Cozy Ambience", "Warm lights, close seating and a corner made for long plans."],
 ];
 
 const menuCategories = [
@@ -468,6 +467,39 @@ const renderFooterSocials = () => {
   );
 };
 
+const initScrollReveals = () => {
+  document.body.classList.add("is-loaded");
+
+  const revealNodes = [
+    ...document.querySelectorAll(
+      ".section__head, .highlight-card, .about__text, .about__panel, .menu-tabs, .menu-item, .menu-note, .event-card, .events-cta, .gallery-carousel, .gallery-dots, .location__content, .map-card, .footer",
+    ),
+  ];
+
+  revealNodes.forEach((node, index) => {
+    node.classList.add("reveal");
+    node.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 55}ms`);
+  });
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    revealNodes.forEach((node) => node.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    { rootMargin: "0px 0px -10% 0px", threshold: 0.12 },
+  );
+
+  revealNodes.forEach((node) => observer.observe(node));
+};
+
 const init = () => {
   renderHighlights();
   renderMenuTabs();
@@ -478,6 +510,7 @@ const init = () => {
   bindGalleryCarousel();
   hydrateLinks();
   renderFooterSocials();
+  initScrollReveals();
 };
 
 if (document.readyState === "loading") {
